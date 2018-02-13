@@ -5,6 +5,7 @@
 /* eslint-disable */
 const webpack = require('webpack');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const HappyPack = require('happypack');
 const path = require('path');
 
@@ -33,7 +34,8 @@ const webpackConfig = {
       'vat',
       'webrtc',
     ],
-    head: './head/boot.js'
+    head: './head/boot.js',
+    css: '../styles/main.scss'
   },
 
   output: {
@@ -104,6 +106,26 @@ const webpackConfig = {
         use: {
           loader: 'happypack/loader',
         }
+      },
+      {
+        test: /\.(css|scss)$/,
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: [
+            {
+              loader: 'css-loader',
+              options: {
+                minimize: true || {/* CSSNano Options */}
+              }
+            },
+            {
+              loader: 'postcss-loader'
+            },
+            {
+              loader: 'sass-loader'
+            }
+          ]
+        })
       }
     ]
   },
@@ -120,6 +142,7 @@ const webpackConfig = {
       threads: 4,
       debug: false
     }),
+    new ExtractTextPlugin('style.css'),
     new webpack.NamedChunksPlugin(),
     new webpack.optimize.CommonsChunkPlugin({
       chunks: ["app", "test", "testDependencies"],
