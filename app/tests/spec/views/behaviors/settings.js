@@ -27,6 +27,7 @@ define(function(require, exports, module) {
     describe('user is signed in', () => {
       it('returns a NavigateBehavior', () => {
         const view = {
+          getSearchParam: sinon.spy(),
           invokeBehavior: sinon.spy(),
         };
         const account = new Account();

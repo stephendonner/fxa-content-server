@@ -19,6 +19,7 @@
 define(function (require, exports, module) {
   'use strict';
 
+  const $ = require('jquery');
   const BaseView = require('../base');
   const { preventDefaultThen } = BaseView;
   const SettingsPanelMixin = require('../mixins/settings-panel-mixin');
@@ -44,6 +45,7 @@ define(function (require, exports, module) {
       dependsOn: [SettingsPanelMixin],
 
       events: {
+        'click .cancel-verification-email': preventDefaultThen('_clickCancelVerificationEmail'),
         'click .refresh-verification-state': preventDefaultThen('_clickRefreshVerificationState'),
         'click .send-verification-email': preventDefaultThen('_clickSendVerificationEmail')
       },
@@ -53,34 +55,46 @@ define(function (require, exports, module) {
       },
 
       _clickRefreshVerificationState: showProgressIndicator(function() {
-        this.model.set({
-          isPanelOpen: true
-        });
         return this.setupSessionGateIfRequired()
           .then((verified) => {
             if (verified) {
               this.displaySuccess(t('Primary email verified successfully'), {
                 closePanel: false
               });
+
+              // We use an explicit `navigateAway` because there could be
+              // more than one panel that could be enabled buy verifying
+              // the session. This will force all the panels to be re-rendered.
+              return this.navigateAway(this.window.location.href);
             }
-            return this.render();
           });
       }, EMAIL_REFRESH_SELECTOR, EMAIL_REFRESH_DELAYMS),
 
       _clickSendVerificationEmail () {
         const account = this.getSignedInAccount();
-        return account.requestVerifySession(this.relier)
+        return account.requestVerifySession({
+          redirectTo: this.window.location.href.split('?')[0]
+        })
           .then(() => {
             this.displaySuccess(t('Verification email sent'), {
               closePanel: false
             });
+            this.model.set({emailSent: true});
+            return this.render();
           });
+      },
+
+      _clickCancelVerificationEmail () {
+        this.closePanel();
+        this.navigate('/settings');
+        $('.send-verification-email').removeClass('hidden');
+        $('.cancel-verification-email').addClass('hidden');
       },
 
       setInitialContext (context) {
         context.set({
-          caption: this.translate(options.caption),
           email: this.getSignedInAccount().get('email'),
+          emailSent: this.model.get('emailSent'),
           gatedHref: options.gatedHref,
           isPanelOpen: this.isPanelOpen(),
           title: this.translate(options.title)
