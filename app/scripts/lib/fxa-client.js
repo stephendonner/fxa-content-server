@@ -673,9 +673,9 @@ define(function (require, exports, module) {
      * @param {String} password Password input
      * @return {Promise} resolves when complete
      */
-    deleteAccount: withClient((client, originalEmail, password) => {
+    deleteAccount: withClient((client, originalEmail, password, sessionToken) => {
       var email = trim(originalEmail);
-      return client.accountDestroy(email, password);
+      return client.accountDestroy(email, password, {}, sessionToken);
     }),
 
     /**

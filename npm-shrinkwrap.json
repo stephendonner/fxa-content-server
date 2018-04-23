@@ -3520,7 +3520,7 @@
     },
     "fxa-js-client": {
       "version": "1.0.3",
-      "resolved": "https://registry.npmjs.org/fxa-js-client/-/fxa-js-client-1.0.3.tgz",
+      "resolved": "https://github.com/mozilla/fxa-js-client.git#session-token-account-delete",
       "integrity": "sha1-H3i61WxrWGBzzmXrK0tsbiyNii0=",
       "requires": {
         "es6-promise": "4.1.1",
